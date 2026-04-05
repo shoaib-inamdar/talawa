@@ -110,5 +110,5 @@ String goldenFileName(String widgetName, String variant, String theme) {
     theme.isNotEmpty,
     'theme must not be empty',
   );
-  return 'goldens/${widgetName}_${variant}_$theme.png';
+  return '../../goldens/${widgetName}_${variant}_$theme.png';
 }

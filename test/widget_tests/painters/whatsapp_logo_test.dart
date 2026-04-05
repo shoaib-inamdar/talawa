@@ -20,7 +20,7 @@ void main() {
 
       await expectLater(
         find.byKey(key),
-        matchesGoldenFile('../../goldens/goldens/whatsapp_logo.png'),
+        matchesGoldenFile('../../goldens/whatsapp_logo.png'),
       );
     });
 

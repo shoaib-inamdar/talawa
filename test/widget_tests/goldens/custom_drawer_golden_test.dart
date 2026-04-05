@@ -9,8 +9,8 @@ import 'package:talawa/services/size_config.dart';
 import 'package:talawa/view_model/main_screen_view_model.dart';
 import 'package:talawa/widgets/custom_drawer.dart';
 
-import '../helpers/test_helpers.dart';
-import '../helpers/test_locator.dart';
+import '../../helpers/test_helpers.dart';
+import '../../helpers/test_locator.dart';
 import 'golden_test_helpers.dart';
 
 void main() {

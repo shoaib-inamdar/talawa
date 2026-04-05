@@ -4,7 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:talawa/services/size_config.dart';
 import 'package:talawa/widgets/custom_alert_dialog.dart';
 
-import '../helpers/test_locator.dart';
+import '../../helpers/test_locator.dart';
 import 'golden_test_helpers.dart';
 
 void main() {

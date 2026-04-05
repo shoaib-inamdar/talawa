@@ -7,7 +7,7 @@ import 'package:mockito/mockito.dart';
 import 'package:talawa/models/user/user_info.dart';
 import 'package:talawa/widgets/add_members_bottom_sheet.dart';
 
-import '../helpers/test_helpers.mocks.dart';
+import '../../helpers/test_helpers.mocks.dart';
 import 'golden_test_helpers.dart';
 
 void main() {

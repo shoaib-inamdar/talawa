@@ -7,8 +7,8 @@ import 'package:talawa/models/comment/comment_model.dart';
 import 'package:talawa/view_model/widgets_view_models/comment_interactions_view_model.dart';
 import 'package:talawa/widgets/comment_interactions.dart';
 
-import '../helpers/test_helpers.dart';
-import '../helpers/test_locator.dart';
+import '../../helpers/test_helpers.dart';
+import '../../helpers/test_locator.dart';
 import 'golden_test_helpers.dart';
 
 class MockCommentInteractionsViewModel extends Mock
