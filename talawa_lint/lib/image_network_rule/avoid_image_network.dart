@@ -41,8 +41,7 @@ class AvoidImageNetworkLintRule extends DartLintRule {
     });
   }
 
-  /// isFlutterImageNetwork checks whether the provided typeName, constructorName,
-  /// and libraryUri correspond to Flutter's Image.network constructor.
+  /// Checks whether the provided parameters correspond to Flutter's Image.network constructor.
   ///
   /// **params**:
   /// * `typeName`: The name of the type to check against 'Image'.
@@ -50,7 +49,7 @@ class AvoidImageNetworkLintRule extends DartLintRule {
   /// * `libraryUri`: The URI of the library to verify it starts with 'package:flutter/'.
   ///
   /// **returns**:
-  /// * `bool`: Returns true if isFlutterImageNetwork determines the parameters match Flutter's Image.network constructor.
+  /// * `bool`: Returns true if the parameters match Flutter's Image.network constructor.
   static bool isFlutterImageNetwork(
     String? typeName,
     String? constructorName,
