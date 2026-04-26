@@ -48,12 +48,12 @@ class ChatService {
     required String name,
     String? description,
   }) async {
-    name = name.trim();
-    if (name.isEmpty) {
+    final trimmedName = name.trim();
+    if (trimmedName.isEmpty) {
       debugPrint('Error creating chat: Empty name');
       return null;
     }
-    return _coreService.createChat(name: name, description: description);
+    return _coreService.createChat(name: trimmedName, description: description);
   }
 
   /// Retrieves all chats for the current user.

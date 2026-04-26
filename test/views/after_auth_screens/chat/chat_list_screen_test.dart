@@ -116,47 +116,51 @@ void main() {
 
     testWidgets('should verify AppBar styling and TabBar configuration',
         (WidgetTester tester) async {
-      await tester.pumpWidget(createChatListScreen());
-      await tester.pumpAndSettle();
+      await mockNetworkImagesFor(() async {
+        await tester.pumpWidget(createChatListScreen());
+        await tester.pumpAndSettle();
 
-      // Get the AppBar widget
-      final appBarFinder = find.byType(AppBar);
-      expect(appBarFinder, findsOneWidget);
+        // Get the AppBar widget
+        final appBarFinder = find.byType(AppBar);
+        expect(appBarFinder, findsOneWidget);
 
-      final AppBar appBar = tester.widget<AppBar>(appBarFinder);
+        final AppBar appBar = tester.widget<AppBar>(appBarFinder);
 
-      // Verify AppBar properties
-      expect(appBar.elevation, 0.0);
-      expect(appBar.centerTitle, true);
+        // Verify AppBar properties
+        expect(appBar.elevation, 0.0);
+        expect(appBar.centerTitle, true);
 
-      // Verify TabBar is in the bottom of AppBar
-      expect(appBar.bottom, isA<TabBar>());
-      final TabBar tabBar = appBar.bottom! as TabBar;
-      expect(tabBar.tabs.length, 2); // Should have 2 tabs now
-      expect(tabBar.tabs.first, isA<Tab>());
-      expect(tabBar.tabs.last, isA<Tab>());
+        // Verify TabBar is in the bottom of AppBar
+        expect(appBar.bottom, isA<TabBar>());
+        final TabBar tabBar = appBar.bottom! as TabBar;
+        expect(tabBar.tabs.length, 2); // Should have 2 tabs now
+        expect(tabBar.tabs.first, isA<Tab>());
+        expect(tabBar.tabs.last, isA<Tab>());
+      });
     });
 
     testWidgets(
         'should verify TabController with correct length and functionality',
         (WidgetTester tester) async {
-      await tester.pumpWidget(createChatListScreen());
-      await tester.pumpAndSettle();
+      await mockNetworkImagesFor(() async {
+        await tester.pumpWidget(createChatListScreen());
+        await tester.pumpAndSettle();
 
-      // Verify TabBar has 2 tabs
-      final tabBarFinder = find.byType(TabBar);
-      expect(tabBarFinder, findsOneWidget);
+        // Verify TabBar has 2 tabs
+        final tabBarFinder = find.byType(TabBar);
+        expect(tabBarFinder, findsOneWidget);
 
-      final TabBar tabBar = tester.widget<TabBar>(tabBarFinder);
-      expect(tabBar.tabs.length, 2);
+        final TabBar tabBar = tester.widget<TabBar>(tabBarFinder);
+        expect(tabBar.tabs.length, 2);
 
-      // Verify TabBarView has correct children
-      final tabBarViewFinder = find.byType(TabBarView);
-      expect(tabBarViewFinder, findsOneWidget);
+        // Verify TabBarView has correct children
+        final tabBarViewFinder = find.byType(TabBarView);
+        expect(tabBarViewFinder, findsOneWidget);
 
-      // Initially DirectChats should be visible
-      expect(find.byType(DirectChats), findsOneWidget);
-      expect(find.byType(GroupChats), findsNothing); // Not visible initially
+        // Initially DirectChats should be visible
+        expect(find.byType(DirectChats), findsOneWidget);
+        expect(find.byType(GroupChats), findsNothing); // Not visible initially
+      });
     });
 
     testWidgets('should switch between Direct and Groups tabs correctly',
@@ -290,18 +294,20 @@ void main() {
 
     testWidgets('should verify FloatingActionButton heroTag for Direct tab',
         (WidgetTester tester) async {
-      await tester.pumpWidget(createChatListScreen());
-      await tester.pumpAndSettle();
+      await mockNetworkImagesFor(() async {
+        await tester.pumpWidget(createChatListScreen());
+        await tester.pumpAndSettle();
 
-      // Get the FloatingActionButton widget on Direct tab
-      final fabFinder = find.byType(FloatingActionButton);
-      expect(fabFinder, findsOneWidget);
+        // Get the FloatingActionButton widget on Direct tab
+        final fabFinder = find.byType(FloatingActionButton);
+        expect(fabFinder, findsOneWidget);
 
-      final FloatingActionButton fab =
-          tester.widget<FloatingActionButton>(fabFinder);
+        final FloatingActionButton fab =
+            tester.widget<FloatingActionButton>(fabFinder);
 
-      // Verify heroTag is set correctly for Direct tab
-      expect(fab.heroTag, equals("chat_list_fab"));
+        // Verify heroTag is set correctly for Direct tab
+        expect(fab.heroTag, equals("chat_list_fab"));
+      });
     });
 
     testWidgets('should verify icon colors are white for both FABs',
@@ -326,74 +332,80 @@ void main() {
 
     testWidgets('should verify widget hierarchy structure is correct',
         (WidgetTester tester) async {
-      await tester.pumpWidget(createChatListScreen());
-      await tester.pumpAndSettle();
+      await mockNetworkImagesFor(() async {
+        await tester.pumpWidget(createChatListScreen());
+        await tester.pumpAndSettle();
 
-      // Verify the widget hierarchy structure
-      expect(find.byType(MaterialApp), findsOneWidget);
-      expect(find.byType(ChatPage), findsOneWidget);
-      expect(find.byType(Scaffold), findsOneWidget);
+        // Verify the widget hierarchy structure
+        expect(find.byType(MaterialApp), findsOneWidget);
+        expect(find.byType(ChatPage), findsOneWidget);
+        expect(find.byType(Scaffold), findsOneWidget);
 
-      // Verify Scaffold contains AppBar, body, and floatingActionButton
-      final scaffoldFinder = find.byType(Scaffold);
-      expect(
-        find.descendant(
-          of: scaffoldFinder,
-          matching: find.byType(AppBar),
-        ),
-        findsOneWidget,
-      );
-      expect(
-        find.descendant(
-          of: scaffoldFinder,
-          matching: find.byType(TabBarView),
-        ),
-        findsOneWidget,
-      );
-      expect(
-        find.descendant(
-          of: scaffoldFinder,
-          matching: find.byType(FloatingActionButton),
-        ),
-        findsOneWidget,
-      );
+        // Verify Scaffold contains AppBar, body, and floatingActionButton
+        final scaffoldFinder = find.byType(Scaffold);
+        expect(
+          find.descendant(
+            of: scaffoldFinder,
+            matching: find.byType(AppBar),
+          ),
+          findsOneWidget,
+        );
+        expect(
+          find.descendant(
+            of: scaffoldFinder,
+            matching: find.byType(TabBarView),
+          ),
+          findsOneWidget,
+        );
+        expect(
+          find.descendant(
+            of: scaffoldFinder,
+            matching: find.byType(FloatingActionButton),
+          ),
+          findsOneWidget,
+        );
+      });
     });
 
     testWidgets('should verify text styling in AppBar title',
         (WidgetTester tester) async {
-      await tester.pumpWidget(createChatListScreen());
-      await tester.pumpAndSettle();
+      await mockNetworkImagesFor(() async {
+        await tester.pumpWidget(createChatListScreen());
+        await tester.pumpAndSettle();
 
-      // Find the title text widget
-      final titleFinder = find.descendant(
-        of: find.byType(AppBar),
-        matching: find.text('Chats'),
-      );
-      expect(titleFinder, findsOneWidget);
+        // Find the title text widget
+        final titleFinder = find.descendant(
+          of: find.byType(AppBar),
+          matching: find.text('Chats'),
+        );
+        expect(titleFinder, findsOneWidget);
 
-      // Get the Text widget
-      final Text titleText = tester.widget<Text>(titleFinder);
+        // Get the Text widget
+        final Text titleText = tester.widget<Text>(titleFinder);
 
-      // Verify text styling properties
-      expect(titleText.style?.fontWeight, FontWeight.w600);
-      expect(titleText.style?.fontSize, 20);
+        // Verify text styling properties
+        expect(titleText.style?.fontWeight, FontWeight.w600);
+        expect(titleText.style?.fontSize, 20);
+      });
     });
 
     testWidgets('should verify StatefulWidget lifecycle methods',
         (WidgetTester tester) async {
-      await tester.pumpWidget(createChatListScreen());
-      await tester.pumpAndSettle();
+      await mockNetworkImagesFor(() async {
+        await tester.pumpWidget(createChatListScreen());
+        await tester.pumpAndSettle();
 
-      // Verify the widget is built correctly (implicitly tests initState)
-      expect(find.byType(ChatPage), findsOneWidget);
-      expect(find.byType(TabBar), findsOneWidget);
+        // Verify the widget is built correctly (implicitly tests initState)
+        expect(find.byType(ChatPage), findsOneWidget);
+        expect(find.byType(TabBar), findsOneWidget);
 
-      // Remove the widget to test dispose
-      await tester.pumpWidget(Container());
-      await tester.pumpAndSettle();
+        // Remove the widget to test dispose
+        await tester.pumpWidget(Container());
+        await tester.pumpAndSettle();
 
-      // Widget should be disposed without errors
-      expect(find.byType(ChatPage), findsNothing);
+        // Widget should be disposed without errors
+        expect(find.byType(ChatPage), findsNothing);
+      });
     });
 
     testWidgets(

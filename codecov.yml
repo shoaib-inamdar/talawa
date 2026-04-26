@@ -1,0 +1,28 @@
+# Codecov configuration for sharded coverage uploads.
+# Prevents display issues when coverage is uploaded from multiple shards.
+# See: https://docs.codecov.com/docs/codecovyml-reference
+
+codecov:
+  # Require all shards to report before computing final coverage
+  notify:
+    after_n_builds: 1
+    wait_for_ci: true
+
+coverage:
+  status:
+    project:
+      default:
+        target: 93%
+        threshold: 1%
+
+comment:
+  layout: "reach,diff,flags,files"
+  behavior: default
+  require_changes: false
+  require_base: false
+  require_head: true
+
+ignore:
+  - "docs/"
+  - "**/*.g.dart"
+  - "test/"

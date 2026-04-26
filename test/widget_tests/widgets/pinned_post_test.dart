@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
+import 'package:network_image_mock/network_image_mock.dart';
 import 'package:talawa/constants/routing_constants.dart';
 import 'package:talawa/models/attachments/attachment_model.dart';
 import 'package:talawa/models/post/post_model.dart';
@@ -51,14 +52,16 @@ void main() {
 
   testWidgets('Text widget is present when there are pinned posts',
       (widgetTester) async {
-    await widgetTester.pumpWidget(
-      MaterialApp(
-        home: PinnedPost(pinnedPost: pinnedPosts),
-      ),
-    );
+    await mockNetworkImagesFor(() async {
+      await widgetTester.pumpWidget(
+        MaterialApp(
+          home: PinnedPost(pinnedPost: pinnedPosts),
+        ),
+      );
 
-    await widgetTester.pumpAndSettle();
-    expect(find.byType(Text), findsWidgets);
+      await widgetTester.pumpAndSettle();
+      expect(find.byType(Text), findsWidgets);
+    });
   });
 
   testWidgets('Container comes if list is empty', (widgetTester) async {
@@ -73,21 +76,23 @@ void main() {
 
   testWidgets('CachedNetworkImage displays correct image',
       (widgetTester) async {
-    await widgetTester.pumpWidget(
-      MaterialApp(
-        home: PinnedPost(pinnedPost: pinnedPosts),
-      ),
-    );
+    await mockNetworkImagesFor(() async {
+      await widgetTester.pumpWidget(
+        MaterialApp(
+          home: PinnedPost(pinnedPost: pinnedPosts),
+        ),
+      );
 
-    await widgetTester.pumpAndSettle();
+      await widgetTester.pumpAndSettle();
 
-    final imageWidget = find.byWidgetPredicate(
-      (widget) =>
-          widget is CachedNetworkImage &&
-          widget.imageUrl == pinnedPosts[0].attachments![0].url,
-    );
+      final imageWidget = find.byWidgetPredicate(
+        (widget) =>
+            widget is CachedNetworkImage &&
+            widget.imageUrl == pinnedPosts[0].attachments![0].url,
+      );
 
-    expect(imageWidget, findsOneWidget);
+      expect(imageWidget, findsOneWidget);
+    });
   });
 
   testWidgets('GestureDetector exists and is tappable', (tester) async {
@@ -95,16 +100,21 @@ void main() {
       Post(id: 'post1', caption: 'Test Caption', attachments: []),
     ];
 
-    await tester.pumpWidget(
-      MaterialApp(
-        home: Scaffold(
-          body: PinnedPost(pinnedPost: posts),
+    await mockNetworkImagesFor(() async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: PinnedPost(pinnedPost: posts),
+          ),
         ),
-      ),
-    );
+      );
 
-    expect(find.byKey(const Key('GestureDetectorPinnedPost0')), findsOneWidget);
-    expect(find.byType(GestureDetector), findsOneWidget);
+      expect(
+        find.byKey(const Key('GestureDetectorPinnedPost0')),
+        findsOneWidget,
+      );
+      expect(find.byType(GestureDetector), findsOneWidget);
+    });
   });
 
   testWidgets('should handle null attachment url', (tester) async {
@@ -114,18 +124,20 @@ void main() {
       caption: 'Sample Caption',
     );
 
-    await tester.pumpWidget(
-      MaterialApp(home: PinnedPost(pinnedPost: [post])),
-    );
+    await mockNetworkImagesFor(() async {
+      await tester.pumpWidget(
+        MaterialApp(home: PinnedPost(pinnedPost: [post])),
+      );
 
-    await tester.pumpAndSettle();
+      await tester.pumpAndSettle();
 
-    expect(find.byType(CachedNetworkImage), findsOneWidget);
+      expect(find.byType(CachedNetworkImage), findsOneWidget);
 
-    final cachedImage =
-        tester.widget<CachedNetworkImage>(find.byType(CachedNetworkImage));
+      final cachedImage =
+          tester.widget<CachedNetworkImage>(find.byType(CachedNetworkImage));
 
-    expect(cachedImage.imageUrl, '');
+      expect(cachedImage.imageUrl, '');
+    });
   });
 
   testWidgets('should handle empty attachments list', (tester) async {
@@ -135,18 +147,20 @@ void main() {
       caption: 'Test Caption',
     );
 
-    await tester.pumpWidget(
-      MaterialApp(home: PinnedPost(pinnedPost: [post])),
-    );
+    await mockNetworkImagesFor(() async {
+      await tester.pumpWidget(
+        MaterialApp(home: PinnedPost(pinnedPost: [post])),
+      );
 
-    await tester.pumpAndSettle();
+      await tester.pumpAndSettle();
 
-    expect(find.byType(CachedNetworkImage), findsOneWidget);
+      expect(find.byType(CachedNetworkImage), findsOneWidget);
 
-    final cachedImage =
-        tester.widget<CachedNetworkImage>(find.byType(CachedNetworkImage));
+      final cachedImage =
+          tester.widget<CachedNetworkImage>(find.byType(CachedNetworkImage));
 
-    expect(cachedImage.imageUrl, '');
+      expect(cachedImage.imageUrl, '');
+    });
   });
 
   testWidgets('should handle null attachments', (tester) async {
@@ -156,18 +170,20 @@ void main() {
       caption: 'Test Caption',
     );
 
-    await tester.pumpWidget(
-      MaterialApp(home: PinnedPost(pinnedPost: [post])),
-    );
+    await mockNetworkImagesFor(() async {
+      await tester.pumpWidget(
+        MaterialApp(home: PinnedPost(pinnedPost: [post])),
+      );
 
-    await tester.pumpAndSettle();
+      await tester.pumpAndSettle();
 
-    expect(find.byType(CachedNetworkImage), findsOneWidget);
+      expect(find.byType(CachedNetworkImage), findsOneWidget);
 
-    final cachedImage =
-        tester.widget<CachedNetworkImage>(find.byType(CachedNetworkImage));
+      final cachedImage =
+          tester.widget<CachedNetworkImage>(find.byType(CachedNetworkImage));
 
-    expect(cachedImage.imageUrl, '');
+      expect(cachedImage.imageUrl, '');
+    });
   });
 
   testWidgets('should verify CachedNetworkImage errorWidget is configured',
@@ -178,27 +194,29 @@ void main() {
       caption: 'Test',
     );
 
-    await tester.pumpWidget(
-      MaterialApp(home: PinnedPost(pinnedPost: [post])),
-    );
+    await mockNetworkImagesFor(() async {
+      await tester.pumpWidget(
+        MaterialApp(home: PinnedPost(pinnedPost: [post])),
+      );
 
-    await tester.pumpAndSettle();
+      await tester.pumpAndSettle();
 
-    final cachedImageFinder = find.byType(CachedNetworkImage);
-    final cachedImage = tester.widget<CachedNetworkImage>(cachedImageFinder);
+      final cachedImageFinder = find.byType(CachedNetworkImage);
+      final cachedImage = tester.widget<CachedNetworkImage>(cachedImageFinder);
 
-    expect(cachedImage.errorWidget, isNotNull);
+      expect(cachedImage.errorWidget, isNotNull);
 
-    final errorWidget = cachedImage.errorWidget!(
-      tester.element(cachedImageFinder),
-      '',
-      Object(),
-    );
+      final errorWidget = cachedImage.errorWidget!(
+        tester.element(cachedImageFinder),
+        '',
+        Object(),
+      );
 
-    expect(errorWidget, isA<Center>());
+      expect(errorWidget, isA<Center>());
 
-    final centerWidget = errorWidget as Center;
-    expect(centerWidget.child, isA<Icon>());
+      final centerWidget = errorWidget as Center;
+      expect(centerWidget.child, isA<Icon>());
+    });
   });
 
   testWidgets('should display empty string when caption is null',
@@ -214,18 +232,21 @@ void main() {
       caption: null,
     );
 
-    await tester.pumpWidget(
-      MaterialApp(home: PinnedPost(pinnedPost: [post])),
-    );
+    await mockNetworkImagesFor(() async {
+      await tester.pumpWidget(
+        MaterialApp(home: PinnedPost(pinnedPost: [post])),
+      );
 
-    await tester.pumpAndSettle();
+      await tester.pumpAndSettle();
 
-    // Find the specific Text widget that displays the caption
-    final captionFinder = find.byWidgetPredicate(
-      (widget) => widget is Text && (widget.data == '' || widget.data == null),
-    );
+      // Find the specific Text widget that displays the caption
+      final captionFinder = find.byWidgetPredicate(
+        (widget) =>
+            widget is Text && (widget.data == '' || widget.data == null),
+      );
 
-    expect(captionFinder, findsAtLeast(1));
+      expect(captionFinder, findsAtLeast(1));
+    });
   });
 
   testWidgets('should handle multiple pinned posts correctly', (tester) async {
@@ -253,27 +274,31 @@ void main() {
       Post(id: 'post3', caption: 'Third Post', attachments: []),
     ];
 
-    await tester.pumpWidget(
-      MaterialApp(home: PinnedPost(pinnedPost: multiplePosts)),
-    );
+    await mockNetworkImagesFor(() async {
+      await tester.pumpWidget(
+        MaterialApp(home: PinnedPost(pinnedPost: multiplePosts)),
+      );
 
-    await tester.pumpAndSettle();
+      await tester.pumpAndSettle();
 
-    expect(find.byType(GestureDetector), findsNWidgets(3));
+      expect(find.byType(GestureDetector), findsNWidgets(3));
+    });
   });
 
   testWidgets('should verify ListView properties', (tester) async {
-    await tester.pumpWidget(
-      MaterialApp(home: PinnedPost(pinnedPost: pinnedPosts)),
-    );
+    await mockNetworkImagesFor(() async {
+      await tester.pumpWidget(
+        MaterialApp(home: PinnedPost(pinnedPost: pinnedPosts)),
+      );
 
-    await tester.pumpAndSettle();
+      await tester.pumpAndSettle();
 
-    final listView = tester.widget<ListView>(find.byType(ListView));
+      final listView = tester.widget<ListView>(find.byType(ListView));
 
-    expect(listView.scrollDirection, Axis.horizontal);
-    expect(listView.shrinkWrap, true);
-    expect(listView.physics, isA<AlwaysScrollableScrollPhysics>());
+      expect(listView.scrollDirection, Axis.horizontal);
+      expect(listView.shrinkWrap, true);
+      expect(listView.physics, isA<AlwaysScrollableScrollPhysics>());
+    });
   });
 
   testWidgets('should use correct cacheKey for CachedNetworkImage',
@@ -289,16 +314,18 @@ void main() {
       ],
     );
 
-    await tester.pumpWidget(
-      MaterialApp(home: PinnedPost(pinnedPost: [post])),
-    );
+    await mockNetworkImagesFor(() async {
+      await tester.pumpWidget(
+        MaterialApp(home: PinnedPost(pinnedPost: [post])),
+      );
 
-    await tester.pumpAndSettle();
+      await tester.pumpAndSettle();
 
-    final cachedImage =
-        tester.widget<CachedNetworkImage>(find.byType(CachedNetworkImage));
+      final cachedImage =
+          tester.widget<CachedNetworkImage>(find.byType(CachedNetworkImage));
 
-    expect(cachedImage.cacheKey, 'unique-id-123');
+      expect(cachedImage.cacheKey, 'unique-id-123');
+    });
   });
 
   testWidgets('GestureDetector navigates using tapAt', (tester) async {
@@ -314,23 +341,25 @@ void main() {
       ),
     ];
 
-    await tester.pumpWidget(
-      MaterialApp(
-        home: Scaffold(body: PinnedPost(pinnedPost: posts)),
-      ),
-    );
+    await mockNetworkImagesFor(() async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(body: PinnedPost(pinnedPost: posts)),
+        ),
+      );
 
-    await tester.pumpAndSettle();
+      await tester.pumpAndSettle();
 
-    await tester.tap(find.text('First Post'));
-    await tester.pumpAndSettle();
+      await tester.tap(find.text('First Post'));
+      await tester.pumpAndSettle();
 
-    verify(
-      navigationService.pushScreen(
-        Routes.pinnedPostScreen,
-        arguments: anyNamed('arguments'),
-      ),
-    ).called(1);
+      verify(
+        navigationService.pushScreen(
+          Routes.pinnedPostScreen,
+          arguments: anyNamed('arguments'),
+        ),
+      ).called(1);
+    });
   });
 
   testWidgets(
@@ -348,17 +377,19 @@ void main() {
       pinnedAt: fixedDateTime,
     );
 
-    await tester.pumpWidget(
-      MaterialApp(home: PinnedPost(pinnedPost: [post])),
-    );
+    await mockNetworkImagesFor(() async {
+      await tester.pumpWidget(
+        MaterialApp(home: PinnedPost(pinnedPost: [post])),
+      );
 
-    await tester.pumpAndSettle();
+      await tester.pumpAndSettle();
 
-    final durationText = post.getPostPinnedDuration();
-    final textWidgets = tester.widgetList<Text>(find.byType(Text));
-    final hasDurationText =
-        textWidgets.any((text) => text.data == durationText);
+      final durationText = post.getPostPinnedDuration();
+      final textWidgets = tester.widgetList<Text>(find.byType(Text));
+      final hasDurationText =
+          textWidgets.any((text) => text.data == durationText);
 
-    expect(hasDurationText, isTrue);
+      expect(hasDurationText, isTrue);
+    });
   });
 }
