@@ -20,138 +20,88 @@ class ShowRecurrenceDialog extends StatefulWidget {
 class _ShowRecurrenceDialogState extends State<ShowRecurrenceDialog> {
   @override
   Widget build(BuildContext context) {
+    final weekDayName = days[widget.model.eventStartDate.weekday - 1];
+    final weeklyText = 'Every ${weekDayName.substring(0, 3)}';
+    final monthlyText = 'Every month on day ${widget.model.eventStartDate.day}';
+    final yearlyText =
+        'Every year on ${widget.model.eventStartDate.day} ${monthNames[widget.model.eventStartDate.month - 1]}';
+
     return Dialog(
       child: SizedBox(
         height: SizeConfig.screenHeight! * 0.6,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            radioButtonFixText(
-              "Does not repeat",
-              (value) => updateModel(value!, false, null, null),
-            ),
-            radioButtonFixText(
-              "Every day",
-              (value) => updateModel(value!, true, Frequency.daily, null),
-            ),
-            radioButton(Frequency.weekly, 1, [
-              days[widget.model.eventStartDate.weekday - 1],
-            ]),
-            radioButton(Frequency.monthly, 1, null),
-            radioButton(Frequency.yearly, 1, null),
-            radioButtonFixText(
-              'Monday to Friday',
-              (value) => updateModel(value!, true, Frequency.weekly, {
-                WeekDays.monday,
-                WeekDays.tuesday,
-                WeekDays.wednesday,
-                WeekDays.thursday,
-                WeekDays.friday,
-              }),
-            ),
-            radioButtonFixText("Custom...", (value) async {
-              widget.model.isRecurring = true;
-              await navigationService.pushScreen(
-                Routes.customRecurrencePage,
-                arguments: widget.model,
-              );
-            }),
-          ],
+        child: RadioGroup<String>(
+          groupValue: widget.model.recurrenceLabel,
+          onChanged: (value) {
+            if (value == null) return;
+            switch (value) {
+              case 'Does not repeat':
+                updateModel(value, false, null, null);
+              case 'Every day':
+                updateModel(value, true, Frequency.daily, null);
+              case 'Monday to Friday':
+                updateModel(value, true, Frequency.weekly, {
+                  WeekDays.monday,
+                  WeekDays.tuesday,
+                  WeekDays.wednesday,
+                  WeekDays.thursday,
+                  WeekDays.friday,
+                });
+              case 'Custom...':
+                widget.model.isRecurring = true;
+                navigationService.pushScreen(
+                  Routes.customRecurrencePage,
+                  arguments: widget.model,
+                );
+              default:
+                if (value == weeklyText) {
+                  updateModel(
+                    value,
+                    true,
+                    Frequency.weekly,
+                    {weekDayName},
+                  );
+                } else if (value == monthlyText) {
+                  updateModel(value, true, Frequency.monthly, null);
+                } else if (value == yearlyText) {
+                  updateModel(value, true, Frequency.yearly, null);
+                }
+            }
+          },
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const RadioListTile<String>(
+                title: Text('Does not repeat'),
+                value: 'Does not repeat',
+              ),
+              const RadioListTile<String>(
+                title: Text('Every day'),
+                value: 'Every day',
+              ),
+              RadioListTile<String>(
+                title: Text(weeklyText),
+                value: weeklyText,
+              ),
+              RadioListTile<String>(
+                title: Text(monthlyText),
+                value: monthlyText,
+              ),
+              RadioListTile<String>(
+                title: Text(yearlyText),
+                value: yearlyText,
+              ),
+              const RadioListTile<String>(
+                title: Text('Monday to Friday'),
+                value: 'Monday to Friday',
+              ),
+              const RadioListTile<String>(
+                title: Text('Custom...'),
+                value: 'Custom...',
+              ),
+            ],
+          ),
         ),
       ),
-    );
-  }
-
-  /// Custom radio list tile for recurrence options.
-  ///
-  /// **params**:
-  /// * `frequency`: Frequency of the event (DAILY, WEEKLY, MONTHLY, YEARLY)
-  /// * `interval`: Interval between recurrences
-  /// * `weekDays`: List of week days for weekly recurrence
-  ///
-  /// **returns**:
-  /// * `RadioListTile<String>`: Radio list tile widget
-  RadioListTile<String> radioButton(
-    String frequency,
-    int interval,
-    List<String>? weekDays,
-  ) {
-    if (frequency == Frequency.weekly && weekDays != null) {
-      final String daysText =
-          weekDays.map((day) => day.substring(0, 3)).join(', ');
-      final String text = 'Every $daysText';
-      return RadioListTile<String>(
-        title: Text(text),
-        value: text,
-        groupValue: widget.model.recurrenceLabel,
-        onChanged: (value) => updateModel(
-          value!,
-          true,
-          frequency,
-          weekDays.toSet(),
-        ),
-      );
-    } else if (Frequency.monthly == frequency) {
-      final String text =
-          'Every month on day ${widget.model.eventStartDate.day}';
-      return RadioListTile<String>(
-        title: Text(text),
-        value: text,
-        groupValue: widget.model.recurrenceLabel,
-        onChanged: (value) => updateModel(
-          value!,
-          true,
-          frequency,
-          null,
-        ),
-      );
-    } else if (Frequency.yearly == frequency) {
-      final String text =
-          'Every year on ${widget.model.eventStartDate.day} ${monthNames[widget.model.eventStartDate.month - 1]}';
-      return RadioListTile<String>(
-        title: Text(text),
-        value: text,
-        groupValue: widget.model.recurrenceLabel,
-        onChanged: (value) => updateModel(
-          value!,
-          true,
-          frequency,
-          null,
-        ),
-      );
-    } else {
-      final String text = 'Every $frequency';
-      return RadioListTile<String>(
-        title: Text(text),
-        value: text,
-        groupValue: widget.model.recurrenceLabel,
-        onChanged: (value) => updateModel(
-          value!,
-          true,
-          frequency,
-          null,
-        ),
-      );
-    }
-  }
-
-  /// Custom radio list tile with fixed text.
-  ///
-  /// **params**:
-  /// * `text`: Text to display
-  /// * `onChanged`: Callback when selected
-  ///
-  /// **returns**:
-  /// * `RadioListTile<String>`: Radio list tile widget
-  RadioListTile<String> radioButtonFixText(
-    String text,
-    Function(String?)? onChanged,
-  ) {
-    return RadioListTile<String>(
-      title: Text(text),
-      value: text,
-      groupValue: widget.model.recurrenceLabel,
-      onChanged: onChanged,
     );
   }
 

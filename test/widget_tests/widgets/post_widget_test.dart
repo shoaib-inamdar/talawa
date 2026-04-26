@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:network_image_mock/network_image_mock.dart';
 import 'package:talawa/models/attachments/attachment_model.dart';
 import 'package:talawa/models/post/post_model.dart';
 import 'package:talawa/models/user/user_info.dart';
@@ -98,21 +99,23 @@ void main() {
 
     testWidgets('PostWidget displays creator with image correctly',
         (tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: PostWidget(post: postWithAttachments),
+      await mockNetworkImagesFor(() async {
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Scaffold(
+              body: PostWidget(post: postWithAttachments),
+            ),
           ),
-        ),
-      );
+        );
 
-      // Verify creator name
-      expect(find.text('Jane Smith'), findsOneWidget);
+        // Verify creator name
+        expect(find.text('Jane Smith'), findsOneWidget);
 
-      // Verify CustomAvatar receives correct props
-      final avatar = tester.widget<CustomAvatar>(find.byType(CustomAvatar));
-      expect(avatar.isImageNull, isFalse);
-      expect(avatar.imageUrl, equals('https://example.com/image.jpg'));
+        // Verify CustomAvatar receives correct props
+        final avatar = tester.widget<CustomAvatar>(find.byType(CustomAvatar));
+        expect(avatar.isImageNull, isFalse);
+        expect(avatar.imageUrl, equals('https://example.com/image.jpg'));
+      });
     });
 
     testWidgets('PostWidget handles creator with null values', (tester) async {
@@ -172,19 +175,21 @@ void main() {
     });
 
     testWidgets('PostWidget displays attachments when present', (tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: PostWidget(post: postWithAttachments),
+      await mockNetworkImagesFor(() async {
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Scaffold(
+              body: PostWidget(post: postWithAttachments),
+            ),
           ),
-        ),
-      );
+        );
 
-      // Should show PostContainer when attachments exist
-      expect(find.byType(PostContainer), findsOneWidget);
+        // Should show PostContainer when attachments exist
+        expect(find.byType(PostContainer), findsOneWidget);
 
-      // Should also show caption below (in the Row)
-      expect(find.byType(CaptionTextWidget), findsOneWidget);
+        // Should also show caption below (in the Row)
+        expect(find.byType(CaptionTextWidget), findsOneWidget);
+      });
     });
 
     testWidgets('PostWidget handles GestureDetector tap', (tester) async {

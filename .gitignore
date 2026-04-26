@@ -495,3 +495,6 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Golden test failure diffs (generated locally)
+test/goldens/failures/

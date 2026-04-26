@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:network_image_mock/network_image_mock.dart';
 import 'package:talawa/models/attachments/attachment_model.dart';
 import 'package:talawa/widgets/post_container.dart';
 
@@ -30,82 +31,88 @@ void main() {
 
     testWidgets('does not show indicator dots for single attachment',
         (tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          home: PostContainer(
-            fileAttachmentList: [
-              AttachmentModel(
-                url: 'https://example.com/image.jpg',
-                mimetype: 'image/jpeg',
-              ),
-            ],
+      await mockNetworkImagesFor(() async {
+        await tester.pumpWidget(
+          MaterialApp(
+            home: PostContainer(
+              fileAttachmentList: [
+                AttachmentModel(
+                  url: 'https://example.com/image.jpg',
+                  mimetype: 'image/jpeg',
+                ),
+              ],
+            ),
           ),
-        ),
-      );
+        );
 
-      // Verify no indicator dots are shown
-      expect(
-        find.byWidgetPredicate(
-          (widget) =>
-              widget is Container &&
-              widget.decoration is BoxDecoration &&
-              (widget.decoration! as BoxDecoration).shape == BoxShape.circle,
-        ),
-        findsNothing,
-      );
+        // Verify no indicator dots are shown
+        expect(
+          find.byWidgetPredicate(
+            (widget) =>
+                widget is Container &&
+                widget.decoration is BoxDecoration &&
+                (widget.decoration! as BoxDecoration).shape == BoxShape.circle,
+          ),
+          findsNothing,
+        );
+      });
     });
 
     testWidgets('shows indicator dots for multiple attachments',
         (tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          home: PostContainer(
-            fileAttachmentList: [
-              AttachmentModel(
-                url: 'https://example.com/image1.jpg',
-                mimetype: 'image/jpeg',
-              ),
-              AttachmentModel(
-                url: 'https://example.com/image2.jpg',
-                mimetype: 'image/jpeg',
-              ),
-            ],
+      await mockNetworkImagesFor(() async {
+        await tester.pumpWidget(
+          MaterialApp(
+            home: PostContainer(
+              fileAttachmentList: [
+                AttachmentModel(
+                  url: 'https://example.com/image1.jpg',
+                  mimetype: 'image/jpeg',
+                ),
+                AttachmentModel(
+                  url: 'https://example.com/image2.jpg',
+                  mimetype: 'image/jpeg',
+                ),
+              ],
+            ),
           ),
-        ),
-      );
-      // There should be 2 indicator dots (circle containers)
-      expect(
-        find.byWidgetPredicate(
-          (widget) =>
-              widget is Container &&
-              widget.decoration is BoxDecoration &&
-              (widget.decoration! as BoxDecoration).shape == BoxShape.circle,
-        ),
-        findsNWidgets(2),
-      );
+        );
+        // There should be 2 indicator dots (circle containers)
+        expect(
+          find.byWidgetPredicate(
+            (widget) =>
+                widget is Container &&
+                widget.decoration is BoxDecoration &&
+                (widget.decoration! as BoxDecoration).shape == BoxShape.circle,
+          ),
+          findsNWidgets(2),
+        );
+      });
     });
 
     testWidgets('handles null URL in image attachment', (tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          home: PostContainer(
-            fileAttachmentList: [
-              AttachmentModel(
-                url: null,
-                mimetype: 'image/jpeg',
-              ),
-            ],
+      await mockNetworkImagesFor(() async {
+        await tester.pumpWidget(
+          MaterialApp(
+            home: PostContainer(
+              fileAttachmentList: [
+                AttachmentModel(
+                  url: null,
+                  mimetype: 'image/jpeg',
+                ),
+              ],
+            ),
           ),
-        ),
-      );
+        );
 
-      await tester.pumpAndSettle();
-      expect(find.byType(CachedNetworkImage), findsOneWidget);
+        await tester.pumpAndSettle();
+        expect(find.byType(CachedNetworkImage), findsOneWidget);
 
-      final cachedImage = tester.widget<CachedNetworkImage>(
-        find.byType(CachedNetworkImage),
-      );
-      expect(cachedImage.imageUrl, isEmpty);
+        final cachedImage = tester.widget<CachedNetworkImage>(
+          find.byType(CachedNetworkImage),
+        );
+        expect(cachedImage.imageUrl, isEmpty);
+      });
     });
 
     testWidgets('handles null mimetype', (tester) async {
@@ -126,53 +133,57 @@ void main() {
     });
 
     testWidgets('renders SizedBox for invalid MIME type', (tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          home: PostContainer(
-            fileAttachmentList: [
-              AttachmentModel(
-                url: 'https://example.com/file.unknown',
-                mimetype: 'invalid/mimetype',
-              ),
-            ],
+      await mockNetworkImagesFor(() async {
+        await tester.pumpWidget(
+          MaterialApp(
+            home: PostContainer(
+              fileAttachmentList: [
+                AttachmentModel(
+                  url: 'https://example.com/file.unknown',
+                  mimetype: 'invalid/mimetype',
+                ),
+              ],
+            ),
           ),
-        ),
-      );
-      await tester.pumpAndSettle();
+        );
+        await tester.pumpAndSettle();
 
-      final pageViewFinder = find.byType(PageView);
+        final pageViewFinder = find.byType(PageView);
 
-      final sizedBoxInPageView = find.descendant(
-        of: pageViewFinder,
-        matching: find.byType(SizedBox),
-      );
+        final sizedBoxInPageView = find.descendant(
+          of: pageViewFinder,
+          matching: find.byType(SizedBox),
+        );
 
-      expect(sizedBoxInPageView, findsOneWidget);
+        expect(sizedBoxInPageView, findsOneWidget);
+      });
     });
 
     testWidgets('renders SizedBox for video MIME type', (tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          home: PostContainer(
-            fileAttachmentList: [
-              AttachmentModel(
-                url: 'https://example.com/file.mp4',
-                mimetype: 'video/mp4',
-              ),
-            ],
+      await mockNetworkImagesFor(() async {
+        await tester.pumpWidget(
+          MaterialApp(
+            home: PostContainer(
+              fileAttachmentList: [
+                AttachmentModel(
+                  url: 'https://example.com/file.mp4',
+                  mimetype: 'video/mp4',
+                ),
+              ],
+            ),
           ),
-        ),
-      );
-      await tester.pumpAndSettle();
+        );
+        await tester.pumpAndSettle();
 
-      final pageViewFinder = find.byType(PageView);
+        final pageViewFinder = find.byType(PageView);
 
-      final sizedBoxInPageView = find.descendant(
-        of: pageViewFinder,
-        matching: find.byType(SizedBox),
-      );
+        final sizedBoxInPageView = find.descendant(
+          of: pageViewFinder,
+          matching: find.byType(SizedBox),
+        );
 
-      expect(sizedBoxInPageView, findsOneWidget);
+        expect(sizedBoxInPageView, findsOneWidget);
+      });
     });
 
     testWidgets('PageView onPageChanged updates pindex correctly',
@@ -193,103 +204,108 @@ void main() {
         ),
       ];
 
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: PostContainer(fileAttachmentList: attachments),
+      await mockNetworkImagesFor(() async {
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Scaffold(
+              body: PostContainer(fileAttachmentList: attachments),
+            ),
           ),
-        ),
-      );
+        );
 
-      await tester.pumpAndSettle();
+        await tester.pumpAndSettle();
 
-      // Initially first page indicator should be active (primary color)
-      expect(
-        find.byType(Container),
-        findsWidgets,
-      );
+        // Initially first page indicator should be active (primary color)
+        expect(
+          find.byType(Container),
+          findsWidgets,
+        );
 
-      // Act - Swipe to next page with sufficient distance
-      final pageViewFinder = find.byType(PageView);
-      expect(pageViewFinder, findsOneWidget);
+        // Act - Swipe to next page with sufficient distance
+        final pageViewFinder = find.byType(PageView);
+        expect(pageViewFinder, findsOneWidget);
 
-      await tester.drag(pageViewFinder, const Offset(-400, 0));
-      await tester.pumpAndSettle();
+        await tester.drag(pageViewFinder, const Offset(-400, 0));
+        await tester.pumpAndSettle();
 
-      // Assert - Verify we're now on a different page by checking indicators
-      final containers = tester.widgetList<Container>(find.byType(Container));
-      final indicators = containers
-          .where(
-            (container) =>
-                container.decoration is BoxDecoration &&
-                (container.decoration! as BoxDecoration).shape ==
-                    BoxShape.circle,
-          )
-          .toList();
+        // Assert - Verify we're now on a different page by checking indicators
+        final containers = tester.widgetList<Container>(find.byType(Container));
+        final indicators = containers
+            .where(
+              (container) =>
+                  container.decoration is BoxDecoration &&
+                  (container.decoration! as BoxDecoration).shape ==
+                      BoxShape.circle,
+            )
+            .toList();
 
-      expect(indicators.length, equals(3));
+        expect(indicators.length, equals(3));
 
-      // Verify that onPageChanged was called by checking active indicator color
-      // At least one indicator should have a non-grey color (the active one)
-      final activeIndicators = indicators
-          .where(
-            (indicator) =>
-                (indicator.decoration! as BoxDecoration).color != Colors.grey,
-          )
-          .toList();
+        // Verify that onPageChanged was called by checking active indicator color
+        // At least one indicator should have a non-grey color (the active one)
+        final activeIndicators = indicators
+            .where(
+              (indicator) =>
+                  (indicator.decoration! as BoxDecoration).color != Colors.grey,
+            )
+            .toList();
 
-      expect(activeIndicators.length, equals(1));
+        expect(activeIndicators.length, equals(1));
+      });
     });
 
     testWidgets('errorWidget callback is invoked and returns correct widget',
         (tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          home: PostContainer(
-            fileAttachmentList: [
-              AttachmentModel(
-                url: 'https://example.com/image.jpg',
-                mimetype: 'image/jpeg',
-              ),
-            ],
+      await mockNetworkImagesFor(() async {
+        await tester.pumpWidget(
+          MaterialApp(
+            home: PostContainer(
+              fileAttachmentList: [
+                AttachmentModel(
+                  url: 'https://example.com/image.jpg',
+                  mimetype: 'image/jpeg',
+                ),
+              ],
+            ),
           ),
-        ),
-      );
+        );
 
-      await tester.pumpAndSettle();
+        await tester.pumpAndSettle();
 
-      // Get the CachedNetworkImage widget
-      final cachedImageFinder = find.byType(CachedNetworkImage);
-      expect(cachedImageFinder, findsOneWidget);
+        // Get the CachedNetworkImage widget
+        final cachedImageFinder = find.byType(CachedNetworkImage);
+        expect(cachedImageFinder, findsOneWidget);
 
-      final cachedImage = tester.widget<CachedNetworkImage>(cachedImageFinder);
-      expect(cachedImage.errorWidget, isNotNull);
+        final cachedImage =
+            tester.widget<CachedNetworkImage>(cachedImageFinder);
+        expect(cachedImage.errorWidget, isNotNull);
 
-      // Get a valid BuildContext from the widget tree
-      final elementFinder = tester.element(cachedImageFinder);
+        // Get a valid BuildContext from the widget tree
+        final elementFinder = tester.element(cachedImageFinder);
 
-      // Directly invoke the errorWidget callback with test parameters
-      final errorWidget = cachedImage.errorWidget!(
-        elementFinder,
-        'https://example.com/image.jpg',
-        Exception('Image load failed'),
-      );
+        // Directly invoke the errorWidget callback with test parameters
+        final errorWidget = cachedImage.errorWidget!(
+          elementFinder,
+          'https://example.com/image.jpg',
+          Exception('Image load failed'),
+        );
 
-      // Verify it returns a Center widget
-      expect(errorWidget, isA<Center>());
+        // Verify it returns a Center widget
+        expect(errorWidget, isA<Center>());
 
-      // Create a test widget to verify the error widget renders correctly
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: errorWidget,
+        // Create a test widget to verify the error widget renders correctly
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Scaffold(
+              body: errorWidget,
+            ),
           ),
-        ),
-      );
+        );
 
-      // Verify the broken image icon is present
-      expect(find.byIcon(Icons.broken_image), findsOneWidget);
-      expect(find.byType(Icon), findsOneWidget);
+        // Verify the broken image icon is present
+        expect(find.byIcon(Icons.broken_image), findsOneWidget);
+        expect(find.byType(Icon), findsOneWidget);
+      });
     });
 
     testWidgets('swipe right to previous page triggers onPageChanged',
@@ -305,86 +321,88 @@ void main() {
         ),
       ];
 
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: PostContainer(fileAttachmentList: attachments),
+      await mockNetworkImagesFor(() async {
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Scaffold(
+              body: PostContainer(fileAttachmentList: attachments),
+            ),
           ),
-        ),
-      );
+        );
 
-      await tester.pumpAndSettle();
+        await tester.pumpAndSettle();
 
-      // Get PageView and indicator dots
-      final pageView = find.byType(PageView);
-      expect(pageView, findsOneWidget);
+        // Get PageView and indicator dots
+        final pageView = find.byType(PageView);
+        expect(pageView, findsOneWidget);
 
-      // Initially, first indicator should be active (primary color)
-      var containers = tester.widgetList<Container>(find.byType(Container));
-      var indicators = containers
-          .where(
-            (container) =>
-                container.decoration is BoxDecoration &&
-                (container.decoration! as BoxDecoration).shape ==
-                    BoxShape.circle,
-          )
-          .toList();
-      expect(indicators.length, equals(2));
+        // Initially, first indicator should be active (primary color)
+        var containers = tester.widgetList<Container>(find.byType(Container));
+        var indicators = containers
+            .where(
+              (container) =>
+                  container.decoration is BoxDecoration &&
+                  (container.decoration! as BoxDecoration).shape ==
+                      BoxShape.circle,
+            )
+            .toList();
+        expect(indicators.length, equals(2));
 
-      // Verify first indicator is active initially
-      final firstIndicatorColorInitial =
-          (indicators[0].decoration! as BoxDecoration).color;
-      expect(firstIndicatorColorInitial, isNot(Colors.grey));
+        // Verify first indicator is active initially
+        final firstIndicatorColorInitial =
+            (indicators[0].decoration! as BoxDecoration).color;
+        expect(firstIndicatorColorInitial, isNot(Colors.grey));
 
-      final secondIndicatorColorInitial =
-          (indicators[1].decoration! as BoxDecoration).color;
-      expect(secondIndicatorColorInitial, equals(Colors.grey));
+        final secondIndicatorColorInitial =
+            (indicators[1].decoration! as BoxDecoration).color;
+        expect(secondIndicatorColorInitial, equals(Colors.grey));
 
-      // Drag left to go to next page
-      await tester.drag(pageView, const Offset(-500, 0));
-      await tester.pumpAndSettle();
+        // Drag left to go to next page
+        await tester.drag(pageView, const Offset(-500, 0));
+        await tester.pumpAndSettle();
 
-      // Verify second indicator is now active
-      containers = tester.widgetList<Container>(find.byType(Container));
-      indicators = containers
-          .where(
-            (container) =>
-                container.decoration is BoxDecoration &&
-                (container.decoration! as BoxDecoration).shape ==
-                    BoxShape.circle,
-          )
-          .toList();
+        // Verify second indicator is now active
+        containers = tester.widgetList<Container>(find.byType(Container));
+        indicators = containers
+            .where(
+              (container) =>
+                  container.decoration is BoxDecoration &&
+                  (container.decoration! as BoxDecoration).shape ==
+                      BoxShape.circle,
+            )
+            .toList();
 
-      final firstIndicatorColorAfterSwipe =
-          (indicators[0].decoration! as BoxDecoration).color;
-      expect(firstIndicatorColorAfterSwipe, equals(Colors.grey));
+        final firstIndicatorColorAfterSwipe =
+            (indicators[0].decoration! as BoxDecoration).color;
+        expect(firstIndicatorColorAfterSwipe, equals(Colors.grey));
 
-      final secondIndicatorColorAfterSwipe =
-          (indicators[1].decoration! as BoxDecoration).color;
-      expect(secondIndicatorColorAfterSwipe, isNot(Colors.grey));
+        final secondIndicatorColorAfterSwipe =
+            (indicators[1].decoration! as BoxDecoration).color;
+        expect(secondIndicatorColorAfterSwipe, isNot(Colors.grey));
 
-      // Drag right to go back to previous page
-      await tester.drag(pageView, const Offset(500, 0));
-      await tester.pumpAndSettle();
+        // Drag right to go back to previous page
+        await tester.drag(pageView, const Offset(500, 0));
+        await tester.pumpAndSettle();
 
-      // Verify first indicator is active (we're back on first page)
-      containers = tester.widgetList<Container>(find.byType(Container));
-      indicators = containers
-          .where(
-            (container) =>
-                container.decoration is BoxDecoration &&
-                (container.decoration! as BoxDecoration).shape ==
-                    BoxShape.circle,
-          )
-          .toList();
+        // Verify first indicator is active (we're back on first page)
+        containers = tester.widgetList<Container>(find.byType(Container));
+        indicators = containers
+            .where(
+              (container) =>
+                  container.decoration is BoxDecoration &&
+                  (container.decoration! as BoxDecoration).shape ==
+                      BoxShape.circle,
+            )
+            .toList();
 
-      final firstIndicatorColor =
-          (indicators[0].decoration! as BoxDecoration).color;
-      expect(firstIndicatorColor, isNot(Colors.grey));
+        final firstIndicatorColor =
+            (indicators[0].decoration! as BoxDecoration).color;
+        expect(firstIndicatorColor, isNot(Colors.grey));
 
-      final secondIndicatorColor =
-          (indicators[1].decoration! as BoxDecoration).color;
-      expect(secondIndicatorColor, equals(Colors.grey));
+        final secondIndicatorColor =
+            (indicators[1].decoration! as BoxDecoration).color;
+        expect(secondIndicatorColor, equals(Colors.grey));
+      });
     });
   });
 }

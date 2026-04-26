@@ -148,6 +148,33 @@ import 'test_helpers.mocks.dart';
   ],
 )
 
+/// StreamController for [Chat] events, created by [getAndRegisterChatService].
+///
+/// Stored at module-level so it can be closed in [unregisterServices]
+/// to avoid resource leaks across test shards.
+StreamController<Chat>? _chatStreamController;
+
+/// StreamController for [ChatMessage] events, created by [getAndRegisterChatService].
+///
+/// Stored at module-level so it can be closed in [unregisterServices]
+/// to avoid resource leaks across test shards.
+StreamController<ChatMessage>? _chatMessageStreamController;
+
+/// StreamController for [OrgInfo] events, created by [getAndRegisterUserConfig].
+StreamController<OrgInfo>? _orgInfoStreamController;
+
+/// StreamController for post list events, created by [getAndRegisterPostService].
+StreamController<List<Post>>? _postStreamController;
+
+/// StreamController for post update events, created by [getAndRegisterPostService].
+StreamController<Post>? _postUpdateStreamController;
+
+/// StreamController for pinned post events, created by [getAndRegisterPinnedPostService].
+StreamController<List<Post>>? _pinnedPostStreamController;
+
+/// StreamController for connectivity events, created by [getAndRegisterConnectivityService].
+StreamController<List<ConnectivityResult>>? _connectivityStreamController;
+
 /// member1 represents a member of the organization.
 final User member1 = User(id: "testMem1");
 
@@ -291,12 +318,19 @@ ChatService getAndRegisterChatService() {
   _removeRegistrationIfExists<ChatService>();
   final service = MockChatService();
 
+  // Close any previously-open controllers to avoid leaks when
+  // registerServices() is called more than once.
+  _chatStreamController?.close();
+  _chatMessageStreamController?.close();
+
   // Mock streams for the new PostgreSQL chat system
   final StreamController<Chat> chatController = StreamController();
+  _chatStreamController = chatController;
   final Stream<Chat> chatStream = chatController.stream.asBroadcastStream();
 
   final StreamController<ChatMessage> chatMessageController =
       StreamController<ChatMessage>();
+  _chatMessageStreamController = chatMessageController;
   final Stream<ChatMessage> messageStream =
       chatMessageController.stream.asBroadcastStream();
 
@@ -658,7 +692,9 @@ UserConfig getAndRegisterUserConfig() {
   );
 
   //Mock Stream for currentOrgStream
+  _orgInfoStreamController?.close();
   final StreamController<OrgInfo> streamController = StreamController();
+  _orgInfoStreamController = streamController;
   final Stream<OrgInfo> stream = streamController.stream.asBroadcastStream();
   when(service.currentOrgInfoController)
       .thenAnswer((invocation) => streamController);
@@ -709,12 +745,16 @@ PostService getAndRegisterPostService() {
   final service = MockPostService();
 
   //Mock Stream for currentOrgStream
+  _postStreamController?.close();
+  _postUpdateStreamController?.close();
   final StreamController<List<Post>> streamController = StreamController();
+  _postStreamController = streamController;
   final Stream<List<Post>> stream = streamController.stream.asBroadcastStream();
   // _streamController.add(posts);
   when(service.postStream).thenAnswer((invocation) => stream);
 
   final StreamController<Post> updateStreamController = StreamController();
+  _postUpdateStreamController = updateStreamController;
   final Stream<Post> updateStream =
       updateStreamController.stream.asBroadcastStream();
   when(service.updatedPostStream).thenAnswer((invocation) => updateStream);
@@ -734,7 +774,9 @@ PinnedPostService getAndRegisterPinnedPostService() {
   _removeRegistrationIfExists<PinnedPostService>();
   final service = MockPinnedPostService();
 
+  _pinnedPostStreamController?.close();
   final StreamController<List<Post>> streamController = StreamController();
+  _pinnedPostStreamController = streamController;
   final Stream<List<Post>> stream = streamController.stream.asBroadcastStream();
   when(service.pinnedPostStream).thenAnswer((_) => stream);
   when(service.refreshPinnedPosts()).thenAnswer((_) async {});
@@ -852,7 +894,9 @@ ConnectivityService getAndRegisterConnectivityService() {
   _removeRegistrationIfExists<ConnectivityService>();
   final service = MockConnectivityService();
 
+  _connectivityStreamController?.close();
   final controller = StreamController<List<ConnectivityResult>>.broadcast();
+  _connectivityStreamController = controller;
   when(service.connectionStream).thenAnswer((_) =>
       Stream<List<ConnectivityResult>>.value([ConnectivityResult.wifi])
           .asBroadcastStream());
@@ -1246,6 +1290,21 @@ void registerServices() {
 /// **returns**:
 ///   None
 void unregisterServices() {
+  // Null out module-level controller references so the next
+  // registerServices() / getAndRegister*() cycle starts fresh.
+  // NOTE: Do NOT call .close() here — the widget tree is still mounted
+  // at tearDown time and closing controllers sends "done" events that
+  // can trigger setState-after-dispose errors. The getAndRegister*()
+  // helpers already close the previous controller before creating a new
+  // one, which is sufficient for inter-test cleanup.
+  _chatStreamController = null;
+  _chatMessageStreamController = null;
+  _orgInfoStreamController = null;
+  _postStreamController = null;
+  _postUpdateStreamController = null;
+  _pinnedPostStreamController = null;
+  _connectivityStreamController = null;
+
   _removeRegistrationIfExists<NavigationService>();
   _removeRegistrationIfExists<GraphqlConfig>();
   _removeRegistrationIfExists<UserConfig>();
